@@ -1,36 +1,77 @@
 const int stepPin = 12;
 const int dirPin  = 14;
 
-const int buttonPin = 0; // BOOT = GPIO0
-
-bool direction = false;    // текущее направление
-bool lastState = HIGH;     // состояние кнопки при последней проверке
-
-void setup() {
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-
-  pinMode(buttonPin, INPUT_PULLUP); // BOOT замыкает на GND
-
-  digitalWrite(dirPin, direction);
-}
-
-void loop() {
-
-  bool currentState = digitalRead(buttonPin);
-
-  // --- Обнаружение нажатия (переход HIGH → LOW) ---
-  if (lastState == HIGH && currentState == LOW) {
-    direction = !direction;                 // меняем направление
-    digitalWrite(dirPin, direction);        // отправляем на драйвер
-    delay(200);                             // антидребезг
+class StepperMotor
+{
+public:
+  StepperMotor(uint16_t stepPin, uint16_t dirPin, int minPosition, int maxPosition)
+  {
+    _dirPin = dirPin;
+    _stepPin = stepPin;
+    _minPosition = minPosition;
+    _maxPosition = maxPosition;
+    _currentPosition = 0;
   }
 
-  lastState = currentState;
+  void begin()
+  {
+    pinMode(stepPin, OUTPUT);
+    pinMode(dirPin, OUTPUT);
+  }
 
-  // --- Мотор крутится постоянно ---
-  digitalWrite(stepPin, HIGH);
-  delayMicroseconds(500);
-  digitalWrite(stepPin, LOW);
-  delayMicroseconds(500);
+  void SetAngle(int angle)
+  {
+    SetPosition((int)(angle / 0.9));
+  }
+
+  // Rotates to position that is the number of steps from _initialPosition 
+  void SetPosition(int positionSteps)
+  {
+    int distance = positionSteps - _currentPosition;
+    _currentPosition = positionSteps;
+
+    if(distance < 0)
+    {
+      distance = -distance;
+      digitalWrite(_dirPin, LOW);
+    }
+    else if(distance > 0)
+      digitalWrite(_dirPin, HIGH);
+    else
+      return;
+
+    _rotateByStepCount(distance);
+  } 
+
+private:
+  int _currentPosition;
+  uint16_t _stepPin;
+  uint16_t _dirPin;
+  int _minPosition;
+  int _maxPosition;
+
+  // Sends impulses, the count of which is equal to stepsCount
+  void _rotateByStepCount(int stepsCount)
+  {
+    for(int i = 0; i < stepsCount; i++)
+    {
+      digitalWrite(_stepPin, HIGH);
+      delayMicroseconds(500);
+      digitalWrite(_stepPin, LOW);
+      delayMicroseconds(500);
+    }
+  }
+};
+
+StepperMotor motor(stepPin, dirPin, 0, 200);
+
+void setup() 
+{  
+  motor.begin();  
+}
+
+void loop() 
+{
+  motor.SetAngle(90);
+  delay(1000);
 }
