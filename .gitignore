@@ -1,0 +1,38 @@
+# Arduino IDE 1.x and 2.x files
+*.ino.hex
+*.ino.eep
+*.elf
+*.bin
+*.lst
+*.map
+*.su
+*.sym
+*.sbr
+*.sbp
+*.o
+*.d
+# Temporary build directory (usually named 'build' or a variant)
+# This path might vary depending on OS and IDE version.
+# For Arduino IDE 2.x, files are often in a 'build' folder within a temp directory.
+build/
+.arduino/
+.arduinocli/
+
+# PlatformIO files and directories (if used)
+.pio/
+.piolibdeps/
+.vscode/ # VS Code specific settings/workspace (optional, but often ignored)
+.cache/
+.project
+.cproject
+
+# Libraries installed locally within the project folder (if not using platformio.ini for dependency management)
+# libraries/
+
+# Operating System generated files
+.DS_Store
+Thumbs.db
+
+# User specific configuration files that should not be shared across systems
+# e.g. secrets that are specific to a local setup
+# secrets.h
